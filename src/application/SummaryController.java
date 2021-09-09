@@ -13,37 +13,55 @@ import java.util.ResourceBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 
 public class SummaryController implements Initializable{
-
+	@FXML
+	private ListView<String> itemList;
+	@FXML
+	private Label quanLabel;
+	@FXML
+	private Label priceLabel;
+	@FXML
+	private Label totalLabel;
+	
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
 	
-	private static List<item> caseItems = new ArrayList<>();
-	private static List<String> idList = new ArrayList<String>();
+	String currentCase;
 	
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		HttpClient getInv = HttpClient.newHttpClient();
-		HttpRequest getInvRequest = HttpRequest.newBuilder().uri(URI.create("https://steamcommunity.com/inventory/76561198045531422/730/2")).build();
-		getInv.sendAsync(getInvRequest, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(SummaryController::parseItem).join();
-		
-		for (item cases : caseItems) {
-			HttpClient getPrice = HttpClient.newHttpClient();
-			HttpRequest getPriceRequest = HttpRequest.newBuilder().uri(URI.create("https://steamcommunity.com/market/priceoverview/?market_hash_name=" + cases.getName().replace(" ", "%20") + "&appid=730&currency=22")).build();
-			
-			cases.setPrice(getPrice.sendAsync(getPriceRequest, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(SummaryController::parsePrice).join());
-			System.out.println(cases.getPrice());
+		for (String k : item.getCaseItems().keySet()) {
+			itemList.getItems().add(k);
 		}
+		
+		itemList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+				
+				currentCase = itemList.getSelectionModel().getSelectedItem();
+				quanLabel.setText("Quantity: " + Integer.toString(item.getCaseItems().get(currentCase).getQuantity()));
+				priceLabel.setText("Price: " + item.getCaseItems().get(currentCase).getPrice());
+				totalLabel.setText("Total: NZ$ " + Double.toString((Double.parseDouble(item.getCaseItems().get(currentCase).getPrice().split(" ")[1]) * Double.valueOf(item.getCaseItems().get(currentCase).getQuantity()))));
+			}
+			
+		});
+		
 		
 	}
 	
@@ -60,35 +78,5 @@ public class SummaryController implements Initializable{
 		}
 	}
 	
-	public static String parsePrice(String responseBody) {
-		//Method retrieves the minimum and median prices of an item
-		JSONObject price = new JSONObject(responseBody);
-		String lowPrice = price.getString("lowest_price");
-		return lowPrice;
-	}
 	
-	public static String parseItem(String responseBody) {
-		//Method retrieves all cases in CSGO inventory and stores to array
-		JSONObject inventoryInfo = new JSONObject(responseBody);
-		JSONArray itemAssets = inventoryInfo.getJSONArray("assets");
-		JSONArray itemInfo = inventoryInfo.getJSONArray("descriptions");
-		
-		for (int i = 0; i<itemInfo.length(); i++) {
-			String itemClassId = itemInfo.getJSONObject(i).getString("classid");
-			String itemName = itemInfo.getJSONObject(i).getString("market_hash_name");
-			if (itemName.contains("Case")) {
-				caseItems.add(new item(itemName,itemClassId));
-			}
-		}
-		for (int j = 0; j<itemAssets.length(); j++) {
-			String itemClassId = itemAssets.getJSONObject(j).getString("classid");
-			idList.add(itemClassId);
-		}
-		
-		for (item cases : caseItems) {
-			cases.setQuantity(Collections.frequency(idList,cases.getId()));
-		}
-
-		return null;
-	}
 }

@@ -1,7 +1,12 @@
 package application;
 
-public class item {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+public class item {
+	private static HashMap<String, item> objMap= new HashMap<String, item>();
+	private static List<item> caseItems = new ArrayList<>();
 	private String itemName;
 	private String itemPrice;
 	private int quantity;
@@ -34,6 +39,14 @@ public class item {
 	
 	public int getQuantity() {
 		return quantity;
+	}
+	
+	public static void addCases(String name,String classId) {
+		objMap.put(name, new item(name,classId));
+	}
+	
+	public static HashMap<String,item> getCaseItems(){
+		return objMap;
 	}
 
 }
