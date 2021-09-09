@@ -4,10 +4,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HomeController">
    <children>
-      <Button layoutX="274.0" layoutY="175.0" mnemonicParsing="false" text="Start" />
+      <Button layoutX="274.0" layoutY="175.0" mnemonicParsing="false" onAction="#summaryScene" text="Start" />
       <Label layoutX="231.0" layoutY="61.0" text="Steam Backpack Tracker" />
    </children>
 </AnchorPane>
