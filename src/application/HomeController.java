@@ -7,7 +7,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -47,12 +46,11 @@ public class HomeController implements Initializable{
 		HttpClient getInv = HttpClient.newHttpClient();
 		HttpRequest getInvRequest = HttpRequest.newBuilder().uri(URI.create("https://steamcommunity.com/inventory/76561198045531422/730/2")).build();
 		getInv.sendAsync(getInvRequest, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(HomeController::parseItem).join();
+		HttpRequest.Builder test = HttpRequest.newBuilder();
 		
 		for (item cases : item.getCaseItems().values()) {
-			HttpClient getPrice = HttpClient.newHttpClient();
-			HttpRequest getPriceRequest = HttpRequest.newBuilder().uri(URI.create("https://steamcommunity.com/market/priceoverview/?market_hash_name=" + cases.getName().replace(" ", "%20") + "&appid=730&currency=22")).build();
-			
-			cases.setPrice(getPrice.sendAsync(getPriceRequest, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(HomeController::parsePrice).join());
+			HttpRequest getPriceRequest = test.uri(URI.create("https://steamcommunity.com/market/priceoverview/?market_hash_name=" + cases.getName().replace(" ", "%20") + "&appid=730&currency=22")).build();
+			cases.setPrice(getInv.sendAsync(getPriceRequest, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(HomeController::parsePrice).join());
 		}
 		
 	}

@@ -35,6 +35,8 @@ public class SummaryController implements Initializable{
 	private Label priceLabel;
 	@FXML
 	private Label totalLabel;
+	@FXML
+	private Label backpackLabel;
 	
 	private Stage stage;
 	private Scene scene;
@@ -45,9 +47,16 @@ public class SummaryController implements Initializable{
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		int total = 0;
+		
 		for (String k : item.getCaseItems().keySet()) {
 			itemList.getItems().add(k);
+			total += Double.valueOf(item.getCaseItems().get(k).getQuantity()) * Double.parseDouble(item.getCaseItems().get(k).getPrice().split(" ")[1]);
 		}
+		
+		backpackLabel.setText("Backpack Total: NZ$ " + Double.toString(total));
+		
+		
 		
 		itemList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
@@ -56,7 +65,7 @@ public class SummaryController implements Initializable{
 				
 				currentCase = itemList.getSelectionModel().getSelectedItem();
 				quanLabel.setText("Quantity: " + Integer.toString(item.getCaseItems().get(currentCase).getQuantity()));
-				priceLabel.setText("Price: " + item.getCaseItems().get(currentCase).getPrice());
+				priceLabel.setText("Lowest Price: " + item.getCaseItems().get(currentCase).getPrice());
 				totalLabel.setText("Total: NZ$ " + Double.toString((Double.parseDouble(item.getCaseItems().get(currentCase).getPrice().split(" ")[1]) * Double.valueOf(item.getCaseItems().get(currentCase).getQuantity()))));
 			}
 			
